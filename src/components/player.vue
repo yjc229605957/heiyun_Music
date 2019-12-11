@@ -18,15 +18,7 @@
         所属专辑:
         <span>{{MusicInfo.al.name}}</span>
       </div>
-      <audio
-        :src="MusicUrl"
-        class="audio"
-        controls
-        autoplay
-        loop
-        @play="play = true"
-        @pause="play = false"
-      ></audio>
+      <audio :src="MusicUrl" class="audio" controls loop @play="play = true" @pause="play = false"></audio>
       <ul class="lyric-container">
         <li class="lyric" v-for="(item, index) in lyris" :key="index">{{item}}</li>
       </ul>
@@ -41,10 +33,43 @@ export default {
       MusicUrl: "",
       MusicInfo: [],
       lyris: "",
-      play: true
+      play: false
     };
   },
-  computed: {}
+  methods: {
+    getMusic() {
+      let _id = this.$route.query.id;
+      //获取歌曲详情
+      this.$aixos({
+        url: "https://autumnfish.cn/song/detail?ids=" + _id
+      }).then(res => {
+        this.MusicInfo = res.data.songs[0];
+        window.console.log(res.data.songs[0]);
+      });
+
+      //获取歌曲 url
+      this.$aixos({
+        url: "https://autumnfish.cn/song/url?id=" + _id
+      }).then(res => {
+        this.MusicUrl = res.data.data[0].url;
+        window.console.log(res.data.data[0].url);
+      });
+
+      //获取歌曲歌词
+      this.$aixos({
+        url: "https://autumnfish.cn/lyric?id=" + _id
+      }).then(res => {
+        //成功回调
+        // this.$refs.son.lyris = res.data.lrc.lyric.split(/\n/g)
+        this.lyris = res.data.lrc.lyric.split(/\[.+\]/g);
+        window.console.log(res);
+      });
+    }
+  },
+  computed: {},
+  created() {
+    this.getMusic()
+  }
 };
 </script>
 
@@ -89,7 +114,7 @@ export default {
   transform: rotate(0);
 }
 
-.lyric{
+.lyric {
   margin-bottom: 10px;
 }
 </style>

@@ -178,6 +178,7 @@ a {
 .result-wrapper .song .name {
   width: 490px;
   padding-left: 20px;
+  overflow: hidden;
 }
 .result-wrapper .song .name span {
   cursor: pointer;
