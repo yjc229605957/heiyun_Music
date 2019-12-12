@@ -17,7 +17,7 @@
       </div>
       <div class="singer">{{item.artists | getName}}</div>
       <div class="album">《{{item.album.name}}》</div>
-      <div class="time">{{item.duration|time}}</div>
+      <div class="time">{{item.duration | time}}</div>
     </div>
   </div>
 </template>
@@ -57,7 +57,7 @@ export default {
         url: `https://autumnfish.cn/search?keywords=${value}`
       }).then(res => {
         this.musicList = res.data.result.songs;
-      }); 
+      });
     }
   },
 

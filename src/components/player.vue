@@ -18,7 +18,8 @@
         所属专辑:
         <span>{{MusicInfo.al.name}}</span>
       </div>
-      <audio :src="MusicUrl" class="audio" controls loop @play="play = true" @pause="play = false"></audio>
+      <audio :src="MusicUrl" class="audio" controls loop 
+      @play="play = true" @pause="play = false"></audio>
       <ul class="lyric-container">
         <li class="lyric" v-for="(item, index) in lyris" :key="index">{{item}}</li>
       </ul>
@@ -60,7 +61,7 @@ export default {
         url: "https://autumnfish.cn/lyric?id=" + _id
       }).then(res => {
         //成功回调
-        // this.$refs.son.lyris = res.data.lrc.lyric.split(/\n/g)
+        // this.$refs.son.lyris = res.data.lrc.lyric.split(/\n/)
         this.lyris = res.data.lrc.lyric.split(/\[.+\]/g);
         window.console.log(res);
       });

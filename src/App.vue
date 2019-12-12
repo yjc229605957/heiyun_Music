@@ -39,7 +39,6 @@ export default {
       this.$router.push("/");
     }
   },
-  components: {}
 };
 </script>
 

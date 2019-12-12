@@ -79,7 +79,7 @@ export default {
   },
   methods: {
     time(value) {
-      return new Date(value).toLocaleString().replace(/:\d{1,2}$/, " ");
+      return new Date(value).toLocaleString()
       // return new Date.toLocaleString()
     }
   },
