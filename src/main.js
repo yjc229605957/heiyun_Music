@@ -10,6 +10,11 @@ Vue.use(ElementUI);
 
 
 Vue.config.productionTip = false
+//导入全局样式
+import './style/base.css';
+
+//导入less
+
 
 new Vue({
   render: h => h(App),
