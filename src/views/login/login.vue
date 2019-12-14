@@ -35,7 +35,7 @@
               <el-input placeholder="请输入验证码" prefix-icon="el-icon-key" v-model="form.captcha"></el-input>
             </el-col>
             <el-col class="captcha" :span="6">
-              <img src="../../assets/cat.png" alt />
+              <img :src="captchaURL" @click="getCaptcha" />
             </el-col>
           </el-row>
         </el-form-item>
@@ -66,6 +66,7 @@ export default {
   name: "login",
 
   data() {
+    //手机号验证规则
     var checkPhone = (rule, value, callback) => {
       if (!value) {
         return callback(new Error("手机号不能为空"));
@@ -84,12 +85,14 @@ export default {
       }
     };
     return {
+      //登录框
       form: {
         phone: "",
         password: "",
         captcha: "",
         checked: false
       },
+      //登录框验证规则
       rules: {
         phone: [{ required: true, validator: checkPhone, trigger: "blur" }],
         password: [
@@ -100,20 +103,49 @@ export default {
           { required: true, message: "请输入验证码", trigger: "blur" },
           { min: 4, max: 4, message: "验证码错误", trigger: "blur" }
         ]
-      }
+      },
+      // 验证码地址
+      captchaURL: `${
+        process.env.VUE_APP_BASEURL
+      }/captcha?type=login&${Date.now()}`
     };
   },
-  methods:{
+  methods: {
+    // 登录表单登录按钮
     submitForm() {
-        this.$refs.form.validate((valid) => {
+      this.$refs.form.validate(valid => {
+        if (this.form.checked == false) {
+          this.$message.error("请同意用户协议");
+        } else {
           if (valid) {
-            alert('submit!');
+            // this.$message.success('登录成功')
+            // 登录请求
+            this.$axios({
+              url: `${process.env.VUE_APP_BASEURL}/login`,
+              method: "post",
+              data: {
+                phone: this.form.phone,
+                password: this.form.password,
+                code: this.form.captcha
+              }
+            }).then(res => {
+              window.console.log(res);
+            });
+          } else if (valid == "") {
+            this.$message.error("请输入账号密码");
           } else {
-            window.console.log('error submit!!');
+            this.$message.error("账户或者密码错误");
             return false;
           }
-        });
-      },
+        }
+      });
+    },
+    // 点击验证码刷新验证码
+    getCaptcha() {
+      this.captchaURL = `${
+        process.env.VUE_APP_BASEURL
+      }/captcha?type=login&${Date.now()}`;
+    }
   }
 };
 </script>
