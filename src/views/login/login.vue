@@ -40,7 +40,7 @@
           </el-row>
         </el-form-item>
         <!-- 用户协议复选框 -->
-        <el-checkbox v-model="form.checked" text-color="#999999">
+        <el-checkbox v-model="form.checked">
           <div class="checked_text">
             我已阅读并同意
             <el-link type="primary">用户协议</el-link>和
@@ -60,13 +60,11 @@
 </template>
 
 <script>
-// 手机号自定义校验规则的函数
-
 export default {
   name: "login",
 
   data() {
-    //手机号验证规则
+    //手机号自定义校验规则的函数
     var checkPhone = (rule, value, callback) => {
       if (!value) {
         return callback(new Error("手机号不能为空"));
@@ -85,7 +83,7 @@ export default {
       }
     };
     return {
-      //登录框
+      //登录框数据
       form: {
         phone: "",
         password: "",
@@ -104,7 +102,7 @@ export default {
           { min: 4, max: 4, message: "验证码错误", trigger: "blur" }
         ]
       },
-      // 验证码地址
+      // 获取验证码  时间戳要记得加 &
       captchaURL: `${
         process.env.VUE_APP_BASEURL
       }/captcha?type=login&${Date.now()}`
@@ -114,12 +112,14 @@ export default {
     // 登录表单登录按钮
     submitForm() {
       this.$refs.form.validate(valid => {
+        //判断是否勾选用户协议
         if (this.form.checked == false) {
           this.$message.error("请同意用户协议");
         } else {
+          //已勾选用户协议 判断输入框是否全部按规则填写
           if (valid) {
-            // this.$message.success('登录成功')
-            // 登录请求
+            // 输入框验证规则正确,发送登录请求
+            //测试手机号 18522222222 12345678
             this.$axios({
               url: `${process.env.VUE_APP_BASEURL}/login`,
               method: "post",
@@ -129,12 +129,27 @@ export default {
                 code: this.form.captcha
               }
             }).then(res => {
+              //如果code==200 说明登录成功
+              if (res.data.code == 200) {
+                this.$message.success("登录成功");
+              } else if (
+                //如果错误提示为账号密码错误 改成 账号或密码错误
+                res.data.message == "登录密码不匹配" ||
+                res.data.message == "登录名不匹配"
+              ) {
+                this.$message.error('账号或密码错误');
+                this.getCaptcha();
+              } else {
+                //以上都不是则提示默认信息 验证码错误
+                this.$message.error(res.data.message);
+                this.getCaptcha();
+              }
               window.console.log(res);
             });
           } else if (valid == "") {
+            //如果输入框都没有内容,直接按登录按钮的提示信息
             this.$message.error("请输入账号密码");
           } else {
-            this.$message.error("账户或者密码错误");
             return false;
           }
         }
