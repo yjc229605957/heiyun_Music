@@ -11,17 +11,22 @@
         <span class="login_title">用户登录</span>
       </div>
       <!-- 表单内容 -->
-      <el-form ref="form" :model="form">
+      <el-form ref="form" :model="form" status-icon :rules="rules">
         <!-- 手机号 -->
-        <el-form-item>
+        <el-form-item prop="phone">
           <el-input placeholder="请输入手机号" prefix-icon="el-icon-user" v-model="form.phone"></el-input>
         </el-form-item>
         <!-- 密码 -->
-        <el-form-item>
-          <el-input show-password placeholder="请输入密码" prefix-icon="el-icon-lock" v-model="form.password"></el-input>
+        <el-form-item prop="password">
+          <el-input
+            show-password
+            placeholder="请输入密码"
+            prefix-icon="el-icon-lock"
+            v-model="form.password"
+          ></el-input>
         </el-form-item>
         <!-- 验证码 -->
-        <el-form-item>
+        <el-form-item prop="captcha">
           <!-- 栅格布局 共24份 -->
           <!-- row行 -->
           <el-row>
@@ -44,7 +49,7 @@
         </el-checkbox>
         <!-- 登录注册按钮 -->
         <el-form-item>
-          <el-button type="primary">登录</el-button>
+          <el-button type="primary" @click="submitForm()">登录</el-button>
           <el-button type="primary">注册</el-button>
         </el-form-item>
       </el-form>
@@ -55,17 +60,60 @@
 </template>
 
 <script>
+// 手机号自定义校验规则的函数
+
 export default {
   name: "login",
+
   data() {
+    var checkPhone = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error("手机号不能为空"));
+      } else {
+        // 判断手机号的格式
+        // 正则
+        const reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+        // 判断是否符合
+        // .test(验证的字符串) 返回的是 true 或者false
+        if (reg.test(value) == true) {
+          callback();
+        } else {
+          // 不满足 手机号的格式
+          callback(new Error("老铁，你的手机号写错了噢"));
+        }
+      }
+    };
     return {
       form: {
         phone: "",
         password: "",
         captcha: "",
-        checked: false,
+        checked: false
+      },
+      rules: {
+        phone: [{ required: true, validator: checkPhone, trigger: "blur" }],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 8, max: 18, message: "密码长度8-18位", trigger: "blur" }
+        ],
+        captcha: [
+          { required: true, message: "请输入验证码", trigger: "blur" },
+          { min: 4, max: 4, message: "验证码错误", trigger: "blur" }
+        ]
       }
     };
+  },
+  methods:{
+    submitForm() {
+        this.$refs.form.validate((valid) => {
+          if (valid) {
+            alert('submit!');
+          } else {
+            window.console.log('error submit!!');
+            return false;
+          }
+        });
+      },
   }
 };
 </script>
@@ -115,6 +163,7 @@ export default {
         height: 45px;
       }
       .captcha {
+        height: 45px;
         img {
           width: 100%;
           height: 45px;
@@ -124,12 +173,11 @@ export default {
         display: flex;
         align-items: center;
         color: #999999;
-        .checked_text{
+        .checked_text {
           color: #999999;
           display: flex;
           align-items: center;
         }
-        
       }
       .el-button {
         width: 100%;
